@@ -11,11 +11,7 @@ Azure Blob Storage.
 Requirements
 ------------
 - Linux/Unix system
-- Azure CLI
-
-To use blobize.sh you need to have the Azure Command-Line Interface 
-(Azure CLI) installed.
-Instructions for installing the Azure CLI can be found [here](https://azure.microsoft.com/nl-nl/documentation/articles/xplat-cli-install/).
+- cURL
 
 
 Using blobize.sh
@@ -58,8 +54,8 @@ Configuration reference
 
 You can edit the first few lines in blobize.sh:
 
-    # Path to Azure CLI binary
-    AZURE_CLI_BIN=azure
+    # Path to curl binary
+    CURL_BIN=curl
     
     # Path to log file for this script
     AZURE_CLI_LOG=upload.log
@@ -87,3 +83,10 @@ You can edit the first few lines in blobize.sh:
     # '*.pdf' to upload only pdf files
     # Default is '*' for any file
     FILENAME_PATTERN='*'
+
+
+Changelog
+---------
+
+v2 no longer uses the [Azure CLI](https://azure.microsoft.com/nl-nl/documentation/articles/xplat-cli-install/), the Azure CLI is cpu intensive and slow, so it is not suitable for uploading thousands of files. 
+Azure CLI has been replaced with cURL.

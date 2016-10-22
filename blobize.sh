@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# Path to Azure CLI binary
-AZURE_CLI_BIN=azure
+# Path to curl binary
+CURL_BIN=curl
 
 # Path to log file for this script
 AZURE_CLI_LOG=blobize_upload.log
@@ -43,13 +43,28 @@ FILENAME_PATTERN='*'
 
 
 
-
-
-
-
-
-
-
+urlencode_grouped_case () {
+  string=$1; format=; set --
+  while
+    literal=${string%%[!-._~0-9A-Za-z]*}
+    case "$literal" in
+      ?*)
+        format=$format%s
+        set -- "$@" "$literal"
+        string=${string#$literal};;
+    esac
+    case "$string" in
+      "") false;;
+    esac
+  do
+    tail=${string#?}
+    head=${string%$tail}
+    format=$format%%%02x
+    set -- "$@" "'$head"
+    string=$tail
+  done
+  printf "$format\\n" "$@"
+}
 
 FOLDER=$1
 cd $FOLDER
@@ -66,7 +81,7 @@ do
 		continue
 	fi
 	BLOB_NAME=$(echo $FILE_PATH | cut -c 3-)
-	
+	MIME_TYPE=$(file -b --mime-type $FILE_PATH)
 
 	AVAILABLE=$(( FILE_COUNTER % SIMULTANEOUS_UPLOADS ))
 	if [ $AVAILABLE -eq 0 ]; then
@@ -74,7 +89,14 @@ do
 	fi
 
 	echo "FILENUMBER: $FILE_COUNTER BLOB_NAME: $BLOB_NAME" >> $AZURE_CLI_LOG
-	$AZURE_CLI_BIN storage blob upload --quiet "$FILE_PATH" $BLOB_CONTAINER "$BLOB_NAME" --sas $SAS_TOKEN --account-name $AZURE_STORAGE_ACCOUNT >> $AZURE_CLI_LOG 2>>$AZURE_CLI_ERRORLOG &    
+
+	BLOB_NAME_URL=$(urlencode_grouped_case $BLOB_NAME)
+	DATE_UTC=$(date -u)
+	$CURL_BIN -X PUT -T $FILE_PATH -H "x-ms-date: $DATE_UTC" -H "Content-Type: $MIME_TYPE" -H "x-ms-blob-type: BlockBlob" \
+		--silent --write-out "%{http_code} :$FILE_PATH\n" \
+		"https://$AZURE_STORAGE_ACCOUNT.blob.core.windows.net/$BLOB_CONTAINER/$BLOB_NAME_URL$SAS_TOKEN" >> $AZURE_CLI_LOG 2>>$AZURE_CLI_ERRORLOG &
+
+	BLOB_NAME_URL=
 done
 set +f
 IFS="$OIFS"
