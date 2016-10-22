@@ -4,7 +4,7 @@ README
 What is blobize.sh?
 -------------------
 
-blobize.sh is a shell script uploads the entire contents of a folder to 
+blobize.sh is a shell script that uploads the entire contents of a folder to 
 Azure Blob Storage.
 
 
@@ -31,10 +31,10 @@ the first few lines of this script:
     # Storage Account Name
     AZURE_STORAGE_ACCOUNT='enter_storage_account_name_here'
     
-    # #container name, must be created already in the Azure portal
+    # container name, must be created already in the Azure portal before running this script
     BLOB_CONTAINER='enter_container_name_here'
     
-Then upload the entire contents of a folder to Azure Blob Storage recursively:
+Then upload the entire contents of a folder (inlcuding its subfolders) to Azure Blob Storage:
 
     $ blobize.sh <folder>
 
@@ -48,7 +48,7 @@ You have this directory structure:
 	/var/www/application/files/attachments
 
 
-If you want to upload everything in /files/ to a Azure Blob Container run:
+If you want to upload everything in ```/var/www/application/files``` to an Azure Blob Container run:
 
     $ blobize.sh /var/www/application/files
 
@@ -68,7 +68,7 @@ You can edit the first few lines in blobize.sh:
     AZURE_CLI_ERRORLOG=error.log
     
     # If the script gets interupted, you can check the log file for the last successful FILENUMBER,
-    # Enter the number here to continue from there.
+    # Enter that number here to continue from there.
     START_FROM=0
     
     # Number of simultaneous uploads, increase to upload faster.
@@ -80,10 +80,10 @@ You can edit the first few lines in blobize.sh:
     # Storage Account Name
     AZURE_STORAGE_ACCOUNT='enter_storage_account_name_here'
     
-    # #container name, must be created already in the Azure portal
+    # container name, must be created already in the Azure portal
     BLOB_CONTAINER='enter_container_name_here'
     
-    # # Only upload files that match this pattern, for example:
-    # # '*.pdf' to upload only pdf files
-    # # Default is '*' for any file
+    # Only upload files that match this pattern, for example:
+    # '*.pdf' to upload only pdf files
+    # Default is '*' for any file
     FILENAME_PATTERN='*'
